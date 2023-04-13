@@ -1,4 +1,5 @@
-from scipy import ndimage
+# from scipy import ndimage
+import imageio, os
 import matplotlib.pyplot as plt
 from filter import *
 from segment_graph import *
@@ -18,7 +19,7 @@ import time
 # Returns:
 #           num_ccs: number of connected components in the segmentation.
 # --------------------------------------------------------------------------------
-def segment(in_image, sigma, k, min_size):
+def segment(in_image, sigma, k, min_size, filename):
     start_time = time.time()
     height, width, band = in_image.shape
     print("Height:  " + str(height))
@@ -82,26 +83,39 @@ def segment(in_image, sigma, k, min_size):
     print(
         "Execution time: " + str(int(elapsed_time / 60)) + " minute(s) and " + str(
             int(elapsed_time % 60)) + " seconds")
-
     # displaying the result
-    fig = plt.figure()
-    a = fig.add_subplot(1, 2, 1)
-    plt.imshow(in_image)
-    a.set_title('Original Image')
-    a = fig.add_subplot(1, 2, 2)
-    plt.imshow(output)
-    a.set_title('Segmented Image')
-    plt.show()
+    # fig = plt.figure()
+    # a = fig.add_subplot(1, 2, 1)
+    # plt.imshow(in_image)
+    # a.set_title('Original Image')
+    # a = fig.add_subplot(1, 2, 2)
+    # plt.imshow(output)
+    # a.set_title('Segmented Image')
+    # plt.show()
+    image_filename_noext = filename.split('.')[0]
+    dirpath = 'results/{filename}'.format(filename=image_filename_noext)
+    if not os.path.exists(dirpath): os.makedirs(dirpath)
+    name = '{name}_sig{sigma}_K{k}_min{min_size}.png'.format(name=image_filename_noext, sigma=sigma, k=k, min_size=min_size)
+    filepath = os.path.join(dirpath, name)
+    imageio.imsave(filepath, output.astype(np.uint8))
+    
+    
 
 
 if __name__ == "__main__":
+    # sigma = 0.5
+    # k = 500
+    # min = 50
+    # filename = "paris.jpg"
+    
     sigma = 0.5
-    k = 500
+    k = 300
     min = 50
-    input_path = "data/paris.jpg"
+    filename = "svhn_sample.png"
+    input_path = os.path.join("data", filename)
 
     # Loading the image
-    input_image = ndimage.imread(input_path, flatten=False, mode=None)
+    input_image = imageio.imread(input_path)
     print("Loading is done.")
     print("processing...")
-    segment(input_image, sigma, k, min)
+    segment(input_image, sigma, k, min, filename)
